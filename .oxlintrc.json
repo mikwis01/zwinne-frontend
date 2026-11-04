@@ -1,0 +1,46 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["react", "typescript", "oxc", "unicorn"],
+  "categories": {
+    "correctness": "error"
+  },
+  "ignorePatterns": ["dist", "src/routeTree.gen.ts"],
+  "rules": {
+    "react/rules-of-hooks": "error",
+    "react/exhaustive-deps": "warn",
+    "react/only-export-components": ["warn", { "allowConstantExport": true }],
+    "react/jsx-no-useless-fragment": "error",
+
+    "typescript/no-explicit-any": "warn",
+    "typescript/consistent-type-definitions": ["error", "type"],
+    "typescript/consistent-type-imports": "error",
+    "no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "caughtErrorsIgnorePattern": "^_",
+        "ignoreRestSiblings": true
+      }
+    ],
+    "no-shadow": "error",
+
+    "func-style": ["error", "expression"],
+    "eqeqeq": ["error", "smart"],
+    "no-alert": "warn",
+    "no-console": "warn",
+    "prefer-const": "error",
+    "object-shorthand": "warn",
+    "no-duplicate-imports": ["error", { "allowSeparateTypeImports": true }]
+  },
+  "overrides": [
+    {
+      "files": ["*.config.{js,ts}"],
+      "rules": { "no-console": "off" }
+    },
+    {
+      "files": ["src/routes/**"],
+      "rules": { "react/only-export-components": "off" }
+    }
+  ]
+}
