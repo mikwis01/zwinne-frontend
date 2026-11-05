@@ -8,35 +8,95 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as rootRouteImport } from './pages/__root'
+import { Route as IndexRouteImport } from './pages/index'
+import { Route as AuthenticatedRouteRouteImport } from './pages/_authenticated/route'
+import { Route as GuestRouteRouteImport } from './pages/_guest/route'
+import { Route as AuthCallbackRouteImport } from './pages/auth/callback'
+import { Route as AuthenticatedProjectsIndexRouteImport } from './pages/_authenticated/projects/index'
+import { Route as GuestLoginIndexRouteImport } from './pages/_guest/login/index'
+import { Route as GuestRegisterIndexRouteImport } from './pages/_guest/register/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuestRouteRoute = GuestRouteRouteImport.update({
+  id: '/_guest',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth/callback',
+  path: '/auth/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedProjectsIndexRoute =
+  AuthenticatedProjectsIndexRouteImport.update({
+    id: '/projects/',
+    path: '/projects/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const GuestLoginIndexRoute = GuestLoginIndexRouteImport.update({
+  id: '/login/',
+  path: '/login/',
+  getParentRoute: () => GuestRouteRoute,
+} as any)
+const GuestRegisterIndexRoute = GuestRegisterIndexRouteImport.update({
+  id: '/register/',
+  path: '/register/',
+  getParentRoute: () => GuestRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth/callback': typeof AuthCallbackRoute
+  '/projects/': typeof AuthenticatedProjectsIndexRoute
+  '/login/': typeof GuestLoginIndexRoute
+  '/register/': typeof GuestRegisterIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth/callback': typeof AuthCallbackRoute
+  '/projects': typeof AuthenticatedProjectsIndexRoute
+  '/login': typeof GuestLoginIndexRoute
+  '/register': typeof GuestRegisterIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/_guest': typeof GuestRouteRouteWithChildren
+  '/auth/callback': typeof AuthCallbackRoute
+  '/_authenticated/projects/': typeof AuthenticatedProjectsIndexRoute
+  '/_guest/login/': typeof GuestLoginIndexRoute
+  '/_guest/register/': typeof GuestRegisterIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/auth/callback' | '/projects/' | '/login/' | '/register/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/auth/callback' | '/projects' | '/login' | '/register'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/_guest'
+    | '/auth/callback'
+    | '/_authenticated/projects/'
+    | '/_guest/login/'
+    | '/_guest/register/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  GuestRouteRoute: typeof GuestRouteRouteWithChildren
+  AuthCallbackRoute: typeof AuthCallbackRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +108,81 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_guest': {
+      id: '/_guest'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof GuestRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/projects/': {
+      id: '/_authenticated/projects/'
+      path: '/projects'
+      fullPath: '/projects/'
+      preLoaderRoute: typeof AuthenticatedProjectsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_guest/login/': {
+      id: '/_guest/login/'
+      path: '/login'
+      fullPath: '/login/'
+      preLoaderRoute: typeof GuestLoginIndexRouteImport
+      parentRoute: typeof GuestRouteRoute
+    }
+    '/_guest/register/': {
+      id: '/_guest/register/'
+      path: '/register'
+      fullPath: '/register/'
+      preLoaderRoute: typeof GuestRegisterIndexRouteImport
+      parentRoute: typeof GuestRouteRoute
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedProjectsIndexRoute: typeof AuthenticatedProjectsIndexRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedProjectsIndexRoute: AuthenticatedProjectsIndexRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
+interface GuestRouteRouteChildren {
+  GuestLoginIndexRoute: typeof GuestLoginIndexRoute
+  GuestRegisterIndexRoute: typeof GuestRegisterIndexRoute
+}
+
+const GuestRouteRouteChildren: GuestRouteRouteChildren = {
+  GuestLoginIndexRoute: GuestLoginIndexRoute,
+  GuestRegisterIndexRoute: GuestRegisterIndexRoute,
+}
+
+const GuestRouteRouteWithChildren = GuestRouteRoute._addFileChildren(
+  GuestRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  GuestRouteRoute: GuestRouteRouteWithChildren,
+  AuthCallbackRoute: AuthCallbackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
