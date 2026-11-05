@@ -1,13 +1,15 @@
 # Frontend
 
-React + Vite SPA boilerplate.
+Frontend aplikacji do zarządzania projektami (Programowanie zwinne). Kontrakt z backendem: [`docs/api-contract.md`](docs/api-contract.md).
 
 ## Stack
 
 - **React 19** + **TypeScript 7** + **Vite 8**
-- **TanStack Router** (file-based routing in `src/routes`, route tree generated into `src/routeTree.gen.ts`)
-- **TanStack Query** + **axios** (`src/lib/query-client.ts`, `src/lib/api-client.ts`)
-- **Tailwind CSS 4** (configured in `src/index.css`) + `cn()` helper (`clsx` + `tailwind-merge`)
+- **TanStack Router** (file-based routing in `src/pages`, route tree generated into `src/routeTree.gen.ts`)
+- **TanStack Query** + **axios** (`src/api/service/query-client.ts`, `src/api/service/api.ts`)
+- **Tailwind CSS 4** + **daisyUI 5** (theme in `src/index.css`) + `cn()` helper (`clsx` + `tailwind-merge`)
+- **react-hook-form** + **zod** (forms and validation)
+- **MSW** (API mocks in `src/mocks`, toggled with `VITE_API_MOCKING`)
 - **oxlint** (linting), **Prettier** (formatting, Tailwind class sorting)
 - **husky** + **lint-staged** + **commitlint**
 
@@ -21,6 +23,25 @@ npm run dev
 ```
 
 App runs on `http://localhost:3000`.
+
+## Mock mode
+
+With `VITE_API_MOCKING=true` (the default in `.env.example`) the API is served by MSW in the browser, no backend needed. Demo accounts (password `haslo1234`):
+
+- `student@example.com` (Student)
+- `prowadzacy@example.com` (Prowadzący)
+
+"Kontynuuj z Google" simulates the OAuth redirect. Registered users are kept in `localStorage` (`mock.users`). To use the real backend, set `VITE_API_MOCKING=false`.
+
+## Environment variables
+
+| Variable               | Description                                         |
+| ---------------------- | --------------------------------------------------- |
+| `VITE_API_URL`         | REST API base URL, e.g. `http://localhost:8080/api` |
+| `VITE_GOOGLE_AUTH_URL` | Backend endpoint that starts Google OAuth2          |
+| `VITE_API_MOCKING`     | `true` = MSW mocks instead of the backend           |
+
+`VITE_*` variables are baked in at build time.
 
 ## Scripts
 
@@ -46,8 +67,8 @@ export const usersQueryOptions = queryOptions({
   queryFn: () => apiClient.get<User[]>('/users').then(res => res.data)
 })
 
-// src/routes/users.tsx
-export const Route = createFileRoute('/users')({
+// src/pages/_authenticated/users/index.tsx
+export const Route = createFileRoute('/_authenticated/users/')({
   loader: ({ context }) =>
     context.queryClient.ensureQueryData(usersQueryOptions),
   component: UsersPage

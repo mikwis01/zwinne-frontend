@@ -1,6 +1,8 @@
 # Frontend
 
-React SPA: Vite, TanStack Router (file-based), TanStack Query + axios, Tailwind 4.
+React SPA: Vite, TanStack Router (file-based), TanStack Query + axios, Tailwind 4 + daisyUI 5, react-hook-form + zod, MSW for API mocks.
+
+UI language is Polish. Backend is Spring Boot REST with JWT auth; the agreed API is in `docs/api-contract.md`. Keep it in sync when changing API calls.
 
 ## Commands
 
@@ -10,13 +12,36 @@ React SPA: Vite, TanStack Router (file-based), TanStack Query + axios, Tailwind 
 
 ## Structure
 
-- `src/routes/` — file-based routes. A route file holds the `Route` definition and the page component.
-- Page-specific components and hooks live next to the route in a `-`-prefixed folder (ignored by the router), e.g. `routes/users/-components/UsersTable/`, `routes/users/-hooks/use-users-filters.ts`.
-- `src/components/` — components shared by multiple pages. One component per folder: `ComponentName/ComponentName.tsx` + `index.ts` barrel export.
-- `src/hooks/` — only hooks shared across multiple pages.
-- `src/api/` — `queryOptions` and mutation functions, one file per resource (e.g. `api/users.ts`).
-- `src/lib/` — configured clients (`apiClient`, `queryClient`) and `cn()`.
-- `src/utils/` — pure helper functions.
+```
+src/
+  api/
+    service/api.ts           axios instance (apiClient) with auth interceptors
+    service/query-client.ts  React Query client
+    <resource>.ts            types, fetch functions and queryOptions per resource (auth.ts, projects.ts)
+  components/                shared components and layouts (Toaster, TextField, GuestLayout, ...)
+  consts/                    app-wide constants (config.ts, roles.ts)
+  hooks/                     shared hooks
+  types/                     app-wide types (auth.ts, api.ts, env.d.ts)
+  utils/                     helpers (cn, toast, dates); utils/auth/ has session, JWT, roles, guards, Google login
+  mocks/                     MSW handlers and mock data
+  pages/                     file-based routes (TanStack Router `routesDirectory`)
+    __root.tsx               root route
+    _guest/route.tsx         pathless layout for logged-out pages (requireGuest)
+    _guest/login/index.tsx   /login
+    _authenticated/route.tsx pathless layout for logged-in pages (requireAuth)
+    _authenticated/projects/ /projects, with components/, consts/, utils/ next to index.tsx
+  router.ts                  createRouter + defaults
+```
+
+- Every route is a folder in `src/pages` with an `index.tsx` that holds the `Route` definition and the page component. `autoCodeSplitting` puts each page in its own chunk.
+- Folders named `components`, `consts`, `types`, `utils` and `hooks` inside `src/pages` are not routes (`routeFileIgnorePattern` in `vite.config.ts`). Any other file or folder there becomes a route.
+- `_guest` and `_authenticated` are pathless layouts: they don't add a URL segment. Their `route.tsx` sets the guard and the layout component.
+- URLs and all file names are English (`/login`, `/register`, `/projects`). API endpoints keep the backend's Polish names (`/api/projekty`).
+- Code used by one page lives in that page's folder. Move it to the top-level `src/` folder once a second page needs it.
+- Fetch functions and `queryOptions` always go in `src/api/`, never in a page folder, so query keys stay in one place for invalidation. Page-specific hooks that wrap them (e.g. a mutation with its toasts) go in `pages/<page>/hooks/`.
+- Components: one per folder, `ComponentName/ComponentName.tsx` + `index.ts` barrel export.
+- `src/consts/config.ts` is the only place that reads `import.meta.env`. A new `VITE_*` variable also goes into `src/types/env.d.ts` (strict, so unknown names fail typecheck) and `.env.example`.
+- Every new endpoint gets an MSW handler in `src/mocks/`.
 - Import from `src` via the `@/` alias, not long relative paths.
 
 ## Naming
@@ -69,9 +94,25 @@ const { mutate, isPending } = useMutation({
 
 Errors thrown in route components and loaders are caught by the router's error boundary (`defaultErrorComponent: ErrorFallback` in `src/router.ts`). Don't hand-roll error states for page data. Use a route-level `errorComponent` only when a page needs a custom one.
 
+## Auth
+
+- Routes under `pages/_authenticated/` require a session, routes under `pages/_guest/` (login, registration) require no session.
+- Role-restricted page: `beforeLoad: () => requireRole('PROWADZACY')`. In components: `hasRole(session.user.roles, 'PROWADZACY')` with `useSession()`.
+- `apiClient` adds the Bearer token and refreshes it on 401. Don't handle tokens in API functions.
+
+## Forms
+
+- react-hook-form + `zodResolver`. Schema in a `kebab-case-schema.ts` file next to the form component.
+- Validation messages in Polish, limits matching the backend's validation.
+- Inputs: `TextField` from `src/components` with `{...register('field')}` and `error={errors.field?.message}`.
+- Notify about results with `toast.success/error(...)` from `src/utils/toast`. Use `getErrorMessage(error, fallback)` for request errors.
+
 ## Styling
 
-- Tailwind only, no inline `style` and no CSS files besides `src/index.css`.
+- Tailwind + daisyUI component classes (`btn`, `input`, `table`, ...). Single light theme in `src/index.css` (no dark mode): `base-100` = near-white page, `base-200` = grey panels and top bar, `primary` = blue. `neutral` (graphite) only for toasts. Font: Google Sans Flex (loaded in `index.html`).
+- Use theme colors (`bg-base-200`, `text-base-content/70`), never raw palette colors.
+- Layout: authenticated pages have `TopBar` (floating grey bar), then `PageHeading` (large title), then content in `rounded-box` panels. Guest pages have only the corner logo and a single `AuthCard` column. Buttons and inputs are pills (`--radius-field`), panels use `--radius-box`, no shadows (`--depth: 0`).
+- No inline `style` and no CSS files besides `src/index.css`.
 - Use `cn()` for conditional or merged classes (e.g. a `className` prop).
 - Class order is handled by Prettier, so don't sort classes by hand.
 
