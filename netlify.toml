@@ -1,0 +1,13 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  VITE_API_MOCKING = "true"
+  VITE_API_URL = "/api"
+  VITE_GOOGLE_AUTH_URL = "/oauth2/authorization/google"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
