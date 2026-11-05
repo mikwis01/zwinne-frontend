@@ -2,7 +2,8 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { RouterProvider } from '@tanstack/react-router'
-import { queryClient } from '@/lib/query-client'
+import { config } from '@/consts/config'
+import { queryClient } from '@/api/service/query-client'
 import { router } from '@/router'
 import { throttledReload } from '@/utils/throttled-reload'
 
@@ -14,6 +15,11 @@ import './index.css'
 window.addEventListener('vite:preloadError', event => {
   if (throttledReload()) event.preventDefault()
 })
+
+if (config.apiMocking) {
+  const { worker } = await import('@/mocks/browser')
+  await worker.start({ onUnhandledFrame: 'bypass', quiet: true })
+}
 
 const container = document.getElementById('root')
 

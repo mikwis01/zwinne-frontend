@@ -1,6 +1,7 @@
 import { createRouter } from '@tanstack/react-router'
+import { queryClient } from '@/api/service/query-client'
 import { ErrorFallback } from '@/components/ErrorFallback'
-import { queryClient } from '@/lib/query-client'
+import { PageLoader } from '@/components/PageLoader'
 import { routeTree } from './routeTree.gen'
 
 export const router = createRouter({
@@ -10,7 +11,8 @@ export const router = createRouter({
   // Freshness is handled by React Query, so the router always calls loaders
   defaultPreloadStaleTime: 0,
   scrollRestoration: true,
-  defaultErrorComponent: ErrorFallback
+  defaultErrorComponent: ErrorFallback,
+  defaultPendingComponent: PageLoader
 })
 
 declare module '@tanstack/react-router' {
