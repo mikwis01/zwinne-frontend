@@ -4,7 +4,11 @@
   "categories": {
     "correctness": "error"
   },
-  "ignorePatterns": ["dist", "src/routeTree.gen.ts"],
+  "ignorePatterns": [
+    "dist",
+    "src/routeTree.gen.ts",
+    "public/mockServiceWorker.js"
+  ],
   "rules": {
     "react/rules-of-hooks": "error",
     "react/exhaustive-deps": "warn",
@@ -39,7 +43,7 @@
       "rules": { "no-console": "off" }
     },
     {
-      "files": ["src/routes/**"],
+      "files": ["src/pages/**"],
       "rules": { "react/only-export-components": "off" }
     }
   ]
