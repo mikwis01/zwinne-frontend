@@ -13,9 +13,13 @@ import { Route as IndexRouteImport } from './pages/index'
 import { Route as AuthenticatedRouteRouteImport } from './pages/_authenticated/route'
 import { Route as GuestRouteRouteImport } from './pages/_guest/route'
 import { Route as AuthCallbackRouteImport } from './pages/auth/callback'
+import { Route as AuthenticatedDashboardIndexRouteImport } from './pages/_authenticated/dashboard/index'
 import { Route as AuthenticatedProjectsIndexRouteImport } from './pages/_authenticated/projects/index'
+import { Route as AuthenticatedUsersIndexRouteImport } from './pages/_authenticated/users/index'
 import { Route as GuestLoginIndexRouteImport } from './pages/_guest/login/index'
 import { Route as GuestRegisterIndexRouteImport } from './pages/_guest/register/index'
+import { Route as AuthenticatedProjectsProjectIdIndexRouteImport } from './pages/_authenticated/projects/$projectId/index'
+import { Route as AuthenticatedProjectsNewIndexRouteImport } from './pages/_authenticated/projects/new/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -35,12 +39,23 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
   path: '/auth/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedDashboardIndexRoute =
+  AuthenticatedDashboardIndexRouteImport.update({
+    id: '/dashboard/',
+    path: '/dashboard/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedProjectsIndexRoute =
   AuthenticatedProjectsIndexRouteImport.update({
     id: '/projects/',
     path: '/projects/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedUsersIndexRoute = AuthenticatedUsersIndexRouteImport.update({
+  id: '/users/',
+  path: '/users/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const GuestLoginIndexRoute = GuestLoginIndexRouteImport.update({
   id: '/login/',
   path: '/login/',
@@ -51,20 +66,40 @@ const GuestRegisterIndexRoute = GuestRegisterIndexRouteImport.update({
   path: '/register/',
   getParentRoute: () => GuestRouteRoute,
 } as any)
+const AuthenticatedProjectsProjectIdIndexRoute =
+  AuthenticatedProjectsProjectIdIndexRouteImport.update({
+    id: '/projects/$projectId/',
+    path: '/projects/$projectId/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedProjectsNewIndexRoute =
+  AuthenticatedProjectsNewIndexRouteImport.update({
+    id: '/projects/new/',
+    path: '/projects/new/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/projects/': typeof AuthenticatedProjectsIndexRoute
+  '/users/': typeof AuthenticatedUsersIndexRoute
   '/login/': typeof GuestLoginIndexRoute
   '/register/': typeof GuestRegisterIndexRoute
+  '/projects/$projectId/': typeof AuthenticatedProjectsProjectIdIndexRoute
+  '/projects/new/': typeof AuthenticatedProjectsNewIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/projects': typeof AuthenticatedProjectsIndexRoute
+  '/users': typeof AuthenticatedUsersIndexRoute
   '/login': typeof GuestLoginIndexRoute
   '/register': typeof GuestRegisterIndexRoute
+  '/projects/$projectId': typeof AuthenticatedProjectsProjectIdIndexRoute
+  '/projects/new': typeof AuthenticatedProjectsNewIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -72,24 +107,50 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/_guest': typeof GuestRouteRouteWithChildren
   '/auth/callback': typeof AuthCallbackRoute
+  '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/projects/': typeof AuthenticatedProjectsIndexRoute
+  '/_authenticated/users/': typeof AuthenticatedUsersIndexRoute
   '/_guest/login/': typeof GuestLoginIndexRoute
   '/_guest/register/': typeof GuestRegisterIndexRoute
+  '/_authenticated/projects/$projectId/': typeof AuthenticatedProjectsProjectIdIndexRoute
+  '/_authenticated/projects/new/': typeof AuthenticatedProjectsNewIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth/callback' | '/projects/' | '/login/' | '/register/'
+  fullPaths:
+    | '/'
+    | '/auth/callback'
+    | '/dashboard/'
+    | '/projects/'
+    | '/users/'
+    | '/login/'
+    | '/register/'
+    | '/projects/$projectId/'
+    | '/projects/new/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth/callback' | '/projects' | '/login' | '/register'
+  to:
+    | '/'
+    | '/auth/callback'
+    | '/dashboard'
+    | '/projects'
+    | '/users'
+    | '/login'
+    | '/register'
+    | '/projects/$projectId'
+    | '/projects/new'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/_guest'
     | '/auth/callback'
+    | '/_authenticated/dashboard/'
     | '/_authenticated/projects/'
+    | '/_authenticated/users/'
     | '/_guest/login/'
     | '/_guest/register/'
+    | '/_authenticated/projects/$projectId/'
+    | '/_authenticated/projects/new/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -129,11 +190,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/dashboard/': {
+      id: '/_authenticated/dashboard/'
+      path: '/dashboard'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof AuthenticatedDashboardIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/projects/': {
       id: '/_authenticated/projects/'
       path: '/projects'
       fullPath: '/projects/'
       preLoaderRoute: typeof AuthenticatedProjectsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/users/': {
+      id: '/_authenticated/users/'
+      path: '/users'
+      fullPath: '/users/'
+      preLoaderRoute: typeof AuthenticatedUsersIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_guest/login/': {
@@ -150,15 +225,38 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GuestRegisterIndexRouteImport
       parentRoute: typeof GuestRouteRoute
     }
+    '/_authenticated/projects/$projectId/': {
+      id: '/_authenticated/projects/$projectId/'
+      path: '/projects/$projectId'
+      fullPath: '/projects/$projectId/'
+      preLoaderRoute: typeof AuthenticatedProjectsProjectIdIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/projects/new/': {
+      id: '/_authenticated/projects/new/'
+      path: '/projects/new'
+      fullPath: '/projects/new/'
+      preLoaderRoute: typeof AuthenticatedProjectsNewIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
   AuthenticatedProjectsIndexRoute: typeof AuthenticatedProjectsIndexRoute
+  AuthenticatedUsersIndexRoute: typeof AuthenticatedUsersIndexRoute
+  AuthenticatedProjectsProjectIdIndexRoute: typeof AuthenticatedProjectsProjectIdIndexRoute
+  AuthenticatedProjectsNewIndexRoute: typeof AuthenticatedProjectsNewIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
   AuthenticatedProjectsIndexRoute: AuthenticatedProjectsIndexRoute,
+  AuthenticatedUsersIndexRoute: AuthenticatedUsersIndexRoute,
+  AuthenticatedProjectsProjectIdIndexRoute:
+    AuthenticatedProjectsProjectIdIndexRoute,
+  AuthenticatedProjectsNewIndexRoute: AuthenticatedProjectsNewIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

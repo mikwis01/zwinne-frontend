@@ -5,7 +5,13 @@ import type { PagedModel } from '@/types/api'
 import { config } from '@/consts/config'
 import { parseRoles } from '@/utils/auth/roles'
 import type { Tokens } from '@/types/auth'
-import { addUser, findUserByEmail, findUserByNrIndeksu, projects } from './db'
+import {
+  addUser,
+  findUserByEmail,
+  findUserByNrIndeksu,
+  projects,
+  saveProjects
+} from './db'
 import { createMockTokens, verifyMockToken } from './jwt'
 
 const api = (path: string) => `${config.apiUrl}${path}`
@@ -88,6 +94,79 @@ export const handlers = [
     })
   }),
 
+  http.get(api('/projekty/:projektId'), async ({ request, params }) => {
+    await delay()
+
+    if (!getAccessPayload(request)) {
+      return errorResponse(401, 'Brak autoryzacji')
+    }
+
+    const id = Number(params.projektId)
+    const project = projects.find(p => p.projektId === id)
+    if (!project) {
+      return errorResponse(404, 'Projekt nie istnieje')
+    }
+
+    return HttpResponse.json<Project>(project)
+  }),
+
+  http.post(api('/projekty'), async ({ request }) => {
+    await delay()
+    const payload = getAccessPayload(request)
+
+    if (!payload) {
+      return errorResponse(401, 'Brak autoryzacji')
+    }
+
+    const body = (await request.json()) as Partial<Project>
+    if (!body.nazwa || body.nazwa.trim().length < 3) {
+      return errorResponse(400, 'Nazwa musi zawierać od 3 do 50 znaków')
+    }
+
+    const maxId = projects.reduce((max, p) => Math.max(max, p.projektId), 0)
+    const nowIso = new Date().toISOString()
+    const newProject: Project = {
+      projektId: maxId + 1,
+      nazwa: body.nazwa.trim(),
+      opis: body.opis?.trim() || null,
+      dataOddania: body.dataOddania || null,
+      dataczasUtworzenia: nowIso.slice(0, 23),
+      dataczasModyfikacji: null
+    }
+
+    projects.unshift(newProject)
+    saveProjects()
+    return HttpResponse.json<Project>(newProject, { status: 201 })
+  }),
+
+  http.put(api('/projekty/:projektId'), async ({ request, params }) => {
+    await delay()
+    const payload = getAccessPayload(request)
+
+    if (!payload) {
+      return errorResponse(401, 'Brak autoryzacji')
+    }
+
+    const id = Number(params.projektId)
+    const project = projects.find(p => p.projektId === id)
+    if (!project) {
+      return errorResponse(404, 'Projekt nie istnieje')
+    }
+
+    const body = (await request.json()) as Partial<Project>
+    if (!body.nazwa || body.nazwa.trim().length < 3) {
+      return errorResponse(400, 'Nazwa musi zawierać od 3 do 50 znaków')
+    }
+
+    project.nazwa = body.nazwa.trim()
+    project.opis = body.opis?.trim() || null
+    project.dataOddania = body.dataOddania || null
+    project.dataczasModyfikacji = new Date().toISOString().slice(0, 23)
+    saveProjects()
+
+    return new HttpResponse(null, { status: 200 })
+  }),
+
   http.delete(api('/projekty/:projektId'), async ({ request, params }) => {
     await delay()
     const payload = getAccessPayload(request)
@@ -108,6 +187,7 @@ export const handlers = [
     }
 
     projects.splice(index, 1)
+    saveProjects()
     return new HttpResponse(null, { status: 200 })
   })
 ]

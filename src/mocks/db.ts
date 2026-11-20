@@ -140,13 +140,14 @@ const PROJECTS: [string, string][] = [
 ]
 
 const DAY_MS = 24 * 60 * 60 * 1000
+const PROJECTS_STORAGE_KEY = 'mock.projects'
 
 const toLocalDateTime = (date: Date) => date.toISOString().slice(0, 23)
 const toLocalDate = (date: Date) => date.toISOString().slice(0, 10)
 
 const now = Date.now()
 
-export const projects: Project[] = PROJECTS.map(([nazwa, opis], index) => {
+const SEED_PROJECTS: Project[] = PROJECTS.map(([nazwa, opis], index) => {
   const createdAt = now - (90 - index * 3) * DAY_MS
   return {
     projektId: index + 1,
@@ -159,3 +160,20 @@ export const projects: Project[] = PROJECTS.map(([nazwa, opis], index) => {
     dataOddania: toLocalDate(new Date(now + (index * 6 - 30) * DAY_MS))
   }
 })
+
+const loadProjects = (): Project[] => {
+  try {
+    const raw = localStorage.getItem(PROJECTS_STORAGE_KEY)
+    return raw ? (JSON.parse(raw) as Project[]) : [...SEED_PROJECTS]
+  } catch {
+    return [...SEED_PROJECTS]
+  }
+}
+
+export const projects: Project[] = loadProjects()
+
+export const saveProjects = () => {
+  try {
+    localStorage.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(projects))
+  } catch {}
+}
