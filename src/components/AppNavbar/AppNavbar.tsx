@@ -1,4 +1,4 @@
-import { useNavigate } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { TopBar } from '@/components/TopBar'
 import { ROLE_LABELS } from '@/consts/roles'
 import type { SessionUser } from '@/types/auth'
@@ -29,51 +29,85 @@ export const AppNavbar = ({ user }: AppNavbarProps) => {
   return (
     <TopBar
       actions={
-        <div className="dropdown dropdown-end">
-          <div
-            tabIndex={0}
-            role="button"
-            aria-label="Menu użytkownika"
-            className="btn h-11 gap-3 border-base-content/30 bg-base-100 pr-1.5 pl-1.5 hover:border-base-content sm:pr-5"
+        <>
+          <Link to="/projects/new" className="btn gap-1.5 px-4 btn-primary">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="size-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2.5"
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+            <span>Nowy projekt</span>
+          </Link>
+
+          <button
+            type="button"
+            title="Czat"
+            aria-label="Czat"
+            className="btn btn-circle border border-primary/15 bg-base-100 text-primary hover:border-primary hover:bg-primary hover:text-primary-content"
           >
-            <span className="grid size-8 place-items-center rounded-full bg-primary text-xs font-semibold text-primary-content uppercase">
-              {getInitials(user)}
-            </span>
-            <span className="hidden max-w-40 truncate sm:inline">
-              {getDisplayName(user)}
-            </span>
-          </div>
-          <div
-            tabIndex={0}
-            className="dropdown-content z-10 mt-3 flex w-72 flex-col gap-4 rounded-3xl border border-base-300 bg-base-100 p-5 text-base-content shadow-xl"
-          >
-            <div className="flex flex-col gap-0.5">
-              <span className="text-lg font-medium tracking-tight">
-                {getDisplayName(user)}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="size-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+              />
+            </svg>
+          </button>
+
+          <div className="flex items-center justify-between gap-3 rounded-xl border border-primary/15 bg-base-100 px-3 py-1.5">
+            <div className="flex min-w-0 items-center gap-3">
+              <span className="grid size-9 shrink-0 place-items-center rounded-full bg-primary text-xs font-bold text-primary-content uppercase">
+                {getInitials(user)}
               </span>
-              <span className="truncate text-sm text-base-content/70">
-                {user.email}
-              </span>
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              {user.roles.map(role => (
-                <span
-                  key={role}
-                  className="rounded-full bg-primary/10 px-3 py-1 text-sm text-primary"
-                >
-                  {ROLE_LABELS[role]}
+              <div className="hidden min-w-0 flex-col sm:flex">
+                <span className="truncate text-sm leading-tight font-semibold">
+                  {getDisplayName(user)}
                 </span>
-              ))}
+                <span className="truncate text-xs leading-tight text-base-content/60">
+                  {user.roles.map(r => ROLE_LABELS[r]).join(', ')}
+                </span>
+              </div>
             </div>
             <button
               type="button"
-              className="btn w-full btn-outline"
+              title="Wyloguj się"
+              aria-label="Wyloguj się"
               onClick={handleLogout}
+              className="btn btn-circle btn-ghost text-error btn-sm hover:bg-error/10"
             >
-              Wyloguj się
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="size-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                />
+              </svg>
             </button>
           </div>
-        </div>
+        </>
       }
     />
   )

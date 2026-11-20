@@ -4,6 +4,7 @@ import { cn } from '@/utils/cn'
 
 type ProjectActionsProps = {
   project: Project
+  onEdit?: (project: Project) => void
   onDelete: (project: Project) => void
 }
 
@@ -54,7 +55,11 @@ const MenuItem = ({ label, icon, danger, onClick }: MenuItemProps) => (
   </li>
 )
 
-export const ProjectActions = ({ project, onDelete }: ProjectActionsProps) => (
+export const ProjectActions = ({
+  project,
+  onEdit,
+  onDelete
+}: ProjectActionsProps) => (
   <div className="dropdown dropdown-end">
     <div
       tabIndex={0}
@@ -95,6 +100,7 @@ export const ProjectActions = ({ project, onDelete }: ProjectActionsProps) => (
       />
       <MenuItem
         label="Edytuj"
+        onClick={onEdit ? () => onEdit(project) : undefined}
         icon={
           <Icon>
             <path d="M12 20h9" />
